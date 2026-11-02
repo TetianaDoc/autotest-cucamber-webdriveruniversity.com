@@ -7,7 +7,7 @@ import org.testng.annotations.DataProvider;
 @CucumberOptions(
         features = {"classpath:features"},
         glue = {"step_definitions"},
-        tags = "@dropdown-menu",
+        tags = "@regression",
         monochrome = true,
         dryRun = false,
         plugin = {"pretty", "html:target/cucumber_rep.html", "json:target/cucumber_report.json"}

@@ -10,6 +10,7 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Properties;
 
 public class DriverFactory {
@@ -17,6 +18,9 @@ public class DriverFactory {
     }
 
     private static final ThreadLocal<WebDriver> webDriver = new ThreadLocal<>();
+    private static final Path CONFIG_PATH = Path.of(
+            System.getProperty("user.dir"), "src", "main", "java", "properties", "config.properties"
+    );
 
     public static WebDriver getDriver() {
         if (webDriver.get() == null) {
@@ -30,46 +34,64 @@ public class DriverFactory {
     }
 
     private static WebDriver createDriver() throws IOException {
-        WebDriver driver;
+        Properties properties = loadProperties();
+        String browserType = getBrowserType(properties);
+        boolean headless = isHeadless(properties);
 
-        switch (getBrowserType()) {
+        WebDriver driver = switch (browserType) {
             case "firefox" -> {
-                System.setProperty("webdriver.gecko.driver", System.getProperty("user.dir") + "/src/main/java/driver/drivers/geckodriver");
+                WebDriverManager.firefoxdriver().setup();
                 FirefoxOptions firefoxOptions = new FirefoxOptions();
                 firefoxOptions.setPageLoadStrategy(PageLoadStrategy.NORMAL);
-                driver = new FirefoxDriver(firefoxOptions);
+                if (headless) {
+                    firefoxOptions.addArguments("-headless");
+                }
+                yield new FirefoxDriver(firefoxOptions);
             }
             case "chrome" -> {
                 WebDriverManager.chromedriver().setup();
                 ChromeOptions chromeOptions = new ChromeOptions();
                 chromeOptions.setPageLoadStrategy(PageLoadStrategy.NORMAL);
-                driver = new ChromeDriver(chromeOptions);
+                if (headless) {
+                    chromeOptions.addArguments("--headless=new");
+                }
+                yield new ChromeDriver(chromeOptions);
             }
-            default -> throw new IllegalStateException("Unexpected value: " + getBrowserType());
-        }
+            default -> throw new IllegalStateException("Unexpected browser type: " + browserType);
+        };
         driver.manage().window().maximize();
         return driver;
     }
 
-    private static String getBrowserType() throws IOException {
-        String browserType;
-        String browserTypeRemoteValue = System.getProperty("browserType");
-
-        if (browserTypeRemoteValue == null || browserTypeRemoteValue.isEmpty()) {
-            try (FileInputStream file = new FileInputStream(System.getProperty("user.dir")
-                    + "/src/main/java/properties/config.properties")) {
-                Properties properties = new Properties();
-                properties.load(file);
-                browserType = properties.getProperty("browser").toLowerCase().trim();
-            }
-        } else {
-            browserType = browserTypeRemoteValue;
+    private static Properties loadProperties() throws IOException {
+        Properties properties = new Properties();
+        try (FileInputStream file = new FileInputStream(CONFIG_PATH.toFile())) {
+            properties.load(file);
         }
-        return browserType;
+        return properties;
+    }
+
+    private static String getBrowserType(Properties properties) {
+        String browserTypeRemoteValue = System.getProperty("browserType");
+        if (browserTypeRemoteValue == null || browserTypeRemoteValue.isBlank()) {
+            return properties.getProperty("browser", "chrome").toLowerCase().trim();
+        }
+        return browserTypeRemoteValue.toLowerCase().trim();
+    }
+
+    private static boolean isHeadless(Properties properties) {
+        String headlessRemoteValue = System.getProperty("headless");
+        if (headlessRemoteValue == null || headlessRemoteValue.isBlank()) {
+            return Boolean.parseBoolean(properties.getProperty("headless", "false").trim());
+        }
+        return Boolean.parseBoolean(headlessRemoteValue.trim());
     }
 
     public static void cleanupDriver() {
-        webDriver.get().quit();
-        webDriver.remove();
+        WebDriver driver = webDriver.get();
+        if (driver != null) {
+            driver.quit();
+            webDriver.remove();
+        }
     }
 }

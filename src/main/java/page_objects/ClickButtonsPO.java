@@ -35,7 +35,7 @@ public class ClickButtonsPO extends BasePO {
         executor.executeScript("arguments[0].click();", javaScriptButton);
     }
 
-    private @FindBy(xpath = "//div/h4[text()='It’s that Easy!!  Well I think it is.....']")
+    private @FindBy(xpath = "//div/h4[text()='It’s that Easy!! Well I think it is.....']")
     WebElement successfulJsMethodText;
 
     public void successfulJsMethodClickMessage() {

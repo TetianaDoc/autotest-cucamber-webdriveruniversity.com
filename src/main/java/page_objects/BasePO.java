@@ -66,11 +66,11 @@ public class BasePO {
     }
 
     public String generateRandomNumber(int length) {
-        return RandomStringUtils.randomNumeric(length);
+        return RandomStringUtils.insecure().nextNumeric(length);
     }
 
     public String generateRandomString(int length) {
-        return RandomStringUtils.randomAlphabetic(length);
+        return RandomStringUtils.insecure().nextAlphabetic(length);
     }
 
 }
