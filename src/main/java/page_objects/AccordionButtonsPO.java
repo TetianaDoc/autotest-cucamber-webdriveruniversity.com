@@ -6,11 +6,12 @@ import org.testng.Assert;
 public class AccordionButtonsPO extends BasePO {
 
     public void clickAccordionButton(String accordion) {
-        getDriver().findElement(By.id(accordion)).click();
+        waitForElementAndClick(By.id(accordion));
     }
 
     public void isDescriptionAppears(String description) {
-        waitFor(By.xpath("//*[text()='" + description + "']"));
-        Assert.assertTrue(getDriver().findElement(By.xpath("//*[text()='" + description + "']")).isDisplayed());
+        By descriptionLocator = By.xpath("//*[normalize-space(text())='" + description + "']");
+        waitFor(descriptionLocator);
+        Assert.assertTrue(getDriver().findElement(descriptionLocator).isDisplayed());
     }
 }

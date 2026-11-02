@@ -4,7 +4,13 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import utils.GlobalVars;
 
+import java.nio.file.Path;
+
 public class FileUploadPO extends BasePO {
+    private static final Path DEFAULT_UPLOAD_FILE = Path.of(
+            System.getProperty("user.dir"), "files_for_upload", "photo.png"
+    );
+
     public void navigateToFileUploadPage() {
         navigateToUrl(GlobalVars.HOMEPAGE_URL + "/File-Upload/index.html");
     }
@@ -16,11 +22,11 @@ public class FileUploadPO extends BasePO {
     WebElement submitFileUploadButton;
 
     public void openFile() {
-        chooseFileButton.sendKeys("/Users/tetianadotsenko/work/autotest-cucamber-webdriveruniversity.com/files_for_upload/photo.png");
+        chooseFileButton.sendKeys(DEFAULT_UPLOAD_FILE.toString());
         waitForElementAndClick(submitFileUploadButton);
     }
 
-    public void clickOnSubmitButton(){
+    public void clickOnSubmitButton() {
         waitForElementAndClick(submitFileUploadButton);
     }
 

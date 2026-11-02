@@ -34,4 +34,23 @@ public class DropDownMenuSteps {
         dropDownMenuPO.isSelectedOptionDisplayed(text);
     }
 
+    @When("I click on checkbox {}")
+    public void clickOnCheckbox(String checkboxValue) {
+        dropDownMenuPO.clickCheckbox(checkboxValue);
+    }
+
+    @Then("The checkbox {} selected state should be {}")
+    public void validateCheckboxSelectedState(String checkboxValue, String expectedState) {
+        dropDownMenuPO.validateCheckboxSelectedState(checkboxValue, Boolean.parseBoolean(expectedState));
+    }
+
+    @When("I select radio button {}")
+    public void selectRadioButton(String radioValue) {
+        dropDownMenuPO.selectRadioButton(radioValue);
+    }
+
+    @Then("The radio button {} is selected")
+    public void isRadioButtonSelected(String radioValue) {
+        dropDownMenuPO.validateRadioButtonSelected(radioValue);
+    }
 }
