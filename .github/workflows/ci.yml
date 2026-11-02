@@ -1,0 +1,58 @@
+name: Run Automated UI Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: 'Browser to run tests on'
+        required: true
+        default: 'chrome'
+        type: choice
+        options:
+          - chrome
+          - firefox
+      tags:
+        description: 'Cucumber tag expression to execute'
+        required: true
+        default: '@regression'
+        type: string
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ui-tests:
+    name: UI Tests (${{ inputs.browser || 'chrome' }})
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run Cucumber & TestNG suite
+        run: |
+          mvn test -B \
+            -Dheadless=true \
+            -DbrowserType=${{ inputs.browser || 'chrome' }} \
+            -Dcucumber.filter.tags="${{ inputs.tags || '@regression' }}"
+
+      - name: Upload Cucumber & Surefire Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cucumber-test-reports-${{ inputs.browser || 'chrome' }}
+          path: |
+            target/cucumber_rep.html
+            target/cucumber_report.json
+            target/surefire-reports/
+          retention-days: 14

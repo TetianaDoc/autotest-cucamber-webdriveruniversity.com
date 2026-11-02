@@ -44,7 +44,7 @@ public class DriverFactory {
                 FirefoxOptions firefoxOptions = new FirefoxOptions();
                 firefoxOptions.setPageLoadStrategy(PageLoadStrategy.NORMAL);
                 if (headless) {
-                    firefoxOptions.addArguments("-headless");
+                    firefoxOptions.addArguments("-headless", "-width=1920", "-height=1080");
                 }
                 yield new FirefoxDriver(firefoxOptions);
             }
@@ -53,7 +53,12 @@ public class DriverFactory {
                 ChromeOptions chromeOptions = new ChromeOptions();
                 chromeOptions.setPageLoadStrategy(PageLoadStrategy.NORMAL);
                 if (headless) {
-                    chromeOptions.addArguments("--headless=new");
+                    chromeOptions.addArguments(
+                            "--headless=new",
+                            "--no-sandbox",
+                            "--disable-dev-shm-usage",
+                            "--window-size=1920,1080"
+                    );
                 }
                 yield new ChromeDriver(chromeOptions);
             }
